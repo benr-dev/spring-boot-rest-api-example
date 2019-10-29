@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.2.0.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'com.example'
@@ -32,3 +33,29 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+// Setup code coverage validation rules.
+// NOTE: These do not get run using the default 'check' task.
+// See the additional dependsOn modification below which
+// causes the build to fail when coverage is not sufficient.
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			limit {
+				counter = 'LINE'
+				minimum = 0.95
+			}
+			excludes = [
+				// Exclude app entry point as not executed during unit tests
+				'com.example.springrestappexample.SpringRestAppExampleApplication'
+			]
+		}
+	}
+}
+
+// This is the modification that causes coverage validation failures
+// to fail the build.
+check.dependsOn jacocoTestCoverageVerification
+
+
